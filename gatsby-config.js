@@ -9,15 +9,15 @@
  */
 module.exports = {
   siteMetadata: {
-    title: `Gatsby Starter Blog`,
+    title: `Palad Tech Blog`,
     author: {
-      name: `Kyle Mathews`,
-      summary: `who lives and works in San Francisco building useful things.`,
+      name: `Palad`,
+      summary: '정신연령 46세'
     },
-    description: `A starter blog demonstrating what Gatsby can do.`,
-    siteUrl: `https://gatsbystarterblogsource.gatsbyjs.io/`,
+    description: `Palad 기술 블로그`,
+    siteUrl: `https://jilpoom.github.io`,
     social: {
-      twitter: `kylemathews`,
+      github: `jilpoom`,
     },
   },
   plugins: [
