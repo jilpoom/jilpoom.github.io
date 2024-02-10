@@ -106,7 +106,7 @@ extractPDF(pdf_upload_path, (err,  data) => {
 
 ![img.png](img.png)
 
-비동기 함수가 성공적으로 처리되었을 때, 중간에 모종의 이유로 실패했을 때의 예외 처리를 `then`과 `catch`를 통헤 `Callback` 방식 보다 명시적으로 처리할 수 있다
+비동기 함수가 성공적으로 처리되었을 때, 중간에 모종의 이유로 실패했을 때의 예외 처리를 `then`과 `catch`를 통해 `Callback` 방식 보다 명시적으로 처리할 수 있다
 
 
 - PDF 추출 로직을 Promise로 변경
@@ -180,7 +180,7 @@ Promise1()
 `Promise`는 `Callback`보다는 충분히 가독성이 좋지만, 우리가 일반적으로 동기 함수를 다루는 방식과 유사하게 비동기 함수를 다루고 싶다면 다음의 `async/await`를 고려해볼 수 있다.
 
 ## `async/await`
-`Promise`의 Chaning Method 방식의 단점을 보완하기 위해 등장했다. 위의 PDF를 추출하고, 분석하는 Promise를 가져와 적용해보자.
+`Promise`의 `메서드 체이닝` 방식의 단점을 보완하기 위해 등장했다. 위의 PDF를 추출하고, 분석하는 Promise를 가져와 적용해보자.
 ```js
 const extractPDF = (pdf_upload_path) => {
   return new Promise((resolve, reject) =>  {
@@ -202,7 +202,7 @@ const analyzePDF = (extracted_data) => {
 ```
 ### `await`
 
-`await` 가 붙을 수 있는 함수는 반드시 **`Promise`를 반환하는 함수여야 한다**. `await`가 붙은 프로미스는 상태가 결정될 때(`Fulfilled` 혹은 `Rejected`)까지 다음 명령이 실행되지 않는다. 또한, 우리들이 일반적으로 사용했던 `try~catch` 방식으로 예외를 명시적으로 처리할 수 있다.
+`await` 가 붙을 수 있는 함수는 반드시 `Promise`를 반환하는 함수여야 한다. `await`가 붙은 프로미스는 상태가 결정될 때(`Fulfilled` 혹은 `Rejected`)까지 다음 명령이 실행되지 않는다. 또한, 우리들이 일반적으로 사용했던 `try~catch` 방식으로 예외를 명시적으로 처리할 수 있다.
 
 이 때, 중요한 것은 `Promise`의 상태가 `Rejected`라면 예외로 처리되어 `catch` 구문으로 들어가며, `Fulfilled` 상태라면 정상적으로 다음 명령을 수행한다. 또한 일반적인 `try~catch`의 명시적 예외 처리를 함께 사용할 수 있다.
 
