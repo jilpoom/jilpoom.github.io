@@ -12,7 +12,7 @@ module.exports = {
     title: `Palad Tech Blog`,
     author: {
       name: `Palad`,
-      summary: '정신연령 46세'
+      summary: 'Backend'
     },
     description: `Palad 기술 블로그`,
     siteUrl: `https://jilpoom.github.io`,
