@@ -5,14 +5,14 @@
  */
 
 /**
- * @type {import('gatsby').GatsbyConfig}
+ * @type {import("gatsby").GatsbyConfig}
  */
 module.exports = {
   siteMetadata: {
     title: `Palad Tech Blog`,
     author: {
       name: `Palad`,
-      summary: 'Backend'
+      summary: "Backend",
     },
     description: `Palad 기술 블로그`,
     siteUrl: `https://jilpoom.github.io`,
@@ -40,6 +40,15 @@ module.exports = {
       resolve: `gatsby-transformer-remark`,
       options: {
         plugins: [
+          {
+            resolve: `gatsby-remark-autolink-headers`,
+            options: {
+              className: `custom-class`,
+              maintainCase: false,
+              removeAccents: true,
+              elements: [`h1`, "h2"],
+            },
+          },
           {
             resolve: `gatsby-remark-images`,
             options: {
