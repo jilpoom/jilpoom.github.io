@@ -1,23 +1,24 @@
 ---
 title: 자바스크립트는 어떻게 멀티 스레드처럼 동작할 수 있을까?
 description: 기본적으로 싱글 스레드 구조인 자바스크립트는 한 번에 하나의 요청만을 처리할 수 있다. Node나 브라우저 환경에서는 자바스크립트가 마치 멀티스레드인 것처럼 동작하는 것을 볼 수 있다. 이 원리를 파헤쳐보자.
-date : '2024-02-25T16:25:00Z'
+date: "2024-02-25T16:25:00Z"
 ---
 
 Javascript는 기본적으로 싱글 스레드(Single Threaded) 구조로써, 한 번의 요청을 수행하는 동안, 다른 요청을 처리할 수 없다. 하지만 우리는 비동기 함수를 사용하면서 마치 동시에 여러 스레드가 수행되는 것처럼 병렬 로직을 작성하기도 했다.(`Promise.all`)
 
 결론부터 말하자면, 자바스크립트 자체만으로는 병렬 처리를 할 수 없다. **비동기 함수 또한 사실, 직렬로 처리된다. 단지 적절한 시간에 지연되어 실행될 뿐이다.**
-   
+
 비동기 함수가 어떻게 처리 되는지는 자바스크립트 런타임 환경의 이벤트 루프의 작동 원리를 통해 이해할 수 있다.
 
 # 자바스크립트의 실행 구조와 런타임 모델의 작동 원리
-   
+
 ![img.png](img.png)
 
 위의 그림을 보면 다음을 알 수 있다.
+
 - Javascript 엔진 자체만으로는 크게 메모리 힙과 콜 스택의 자료 구조를 가지고 있다.
 - Javascript를 실행하는 런타임 모델은 콜백 큐라는 자료구조를 가지고, 이벤트 루프를 통해 제어되고 있다.
-- 위의 그림에서 Web APIs는 클라이언트 사이드 Web APIs(DOM, AJAX ...)로 브라우저에서 자바스크립트가 호출할 수 있는 대부분의 비동기 함수를 포함한다. 
+- 위의 그림에서 Web APIs는 클라이언트 사이드 Web APIs(DOM, AJAX ...)로 브라우저에서 자바스크립트가 호출할 수 있는 대부분의 비동기 함수를 포함한다.
 
 > 위의 그림을 브라우저 환경이 아닌 Node.js 환경으로 대체한다면, Web APIs 대신 비동기적으로 동작하는 Node.js 내장 모듈로 대체할 수 있다,(fs, dns...)
 
@@ -26,13 +27,15 @@ Javascript는 기본적으로 싱글 스레드(Single Threaded) 구조로써, �
 ## 함수는 콜스택의 최상단에 올라야 비로소 실행된다.
 
 다음과 같은 자바스크립트 로직이 있다고 해보자.
+
 ```js
 function A() {
-  B();
-  return 0;
+  B()
+  return 0
 }
-A();
+A()
 ```
+
 해당 함수가 실행되는 순서를 메모리 구조 관점에서 보면 다음과 같다.
 
 > 1. `A` 함수가 실행될 때, `Frame`의 단위로 콜 스택에 올라간다. `Frame`은 해당 함수가 호출될 때의 파라미터, 함수 내부의 지역변수를 포함하여 생성된다. 이를 `FrameA` 라고 하자.
@@ -45,17 +48,18 @@ A();
 이러한 자바스크립트의 한계를 런타임(브라우저, Node.js) 차원에서 도와주는 방법이, **콜백 큐와 이벤트 루프**이다.
 
 ## 콜백 큐는 콜백 함수(비동기 함수)가 콜스택에 올라가기 전에 대기하는 장소이다.
- 
+
 상대적으로 처리 시간이 오래 걸리는 I/O 작업이나, `setTimeout`와 같은 비동기 함수를 호출했을 때, 해당 함수가 적절한 시간에 실행될 수 있도록 대기하는 콜백 큐에 들어가게 된다.
 
 ```js
 function A() {
-  setTimeout(() => console.log('콜백 큐에 들어갈 콜백 함수'), 1000);
+  setTimeout(() => console.log("콜백 큐에 들어갈 콜백 함수"), 1000)
 }
-A();
+A()
 ```
+
 콜백 함수가 콜백 큐에 들어갈 때, `Message`라는 콜백 함수를 처리하는 객체의 형태로 큐에 들어가게 된다. **이벤트 루프는 콜백 큐와 콜 스택을 감시하며, 콜 스택이 비었을 때, 가장 오래된 메시지를 큐에서 꺼내 메세지와 연결된 함수를 호출하여 콜 스택 프레임을 생성**한다.
-   
+
 각 메세지는 다른 메세지에 영향을 주지 않으며, 반드시 한 메시지가 끝나야 다음 메시지가 실행된다(Run-to-Completion)
 
 # 자바스크립트 직렬 처리의 성능을 끌어올리는 방법
@@ -65,9 +69,6 @@ A();
 결국, 자바스크립트 엔진 하나로 모든 것을 감당하기에는 성능 문제가 너무 크다는 것이다.
 
 하지만, 자바스크립트의 실행은 자바스크립트가 실행되는 런타임 환경을 빼놓고 이야기할 수 없다. 그만큼 런타임 측에서 자바스크립트를 보조하는 것이 많다.
-
-
-
 
 ## C, C++, Rust와 같은 로우 레벨 API를 활용한 성능 향상
 
@@ -91,11 +92,12 @@ A();
 ## 쉬지않고 콜스택에 함수를 올리는 이벤트 루프와 Promise로 명령 순서 제어하기
 
 위에서 `setTimeout`을 사용하는 함수를 다시 한 번 살펴보자.
+
 ```js
 function A() {
-  setTimeout(() => console.log('콜백 큐에 들어갈 콜백 함수'), 1000);
+  setTimeout(() => console.log("콜백 큐에 들어갈 콜백 함수"), 1000)
 }
-A();
+A()
 ```
 
 함수가 실행되면 콜스택에 해당 함수가 프레임 단위로 올라가고, 함수가 실행을 끝마칠 때까지, 콜스택의 최상단을 차지하고 있다고 말했다.
@@ -115,22 +117,23 @@ A();
 
 ```js
 const FindAllUser = () => {
-  const find_users = `SELECT * FROM users`;
-  
-  const users = DBClient(find_users); // 외부 API를 호출했으나, 결과의 반환을 기다리지 않고 다음 줄이 바로 실행됨.
-  
+  const find_users = `SELECT * FROM users`
+
+  const users = DBClient(find_users) // 외부 API를 호출했으나, 결과의 반환을 기다리지 않고 다음 줄이 바로 실행됨.
+
   console.log(users) // result: undefined
 }
 ```
+
 즉, 자바스크립트 내부에서 결과값 호출의 순서를 보장하는 기능이 필요해졌다. 한 비동기 함수의 결과값이 오지 않았다면, 다음 함수를 실행하고 싶지 않을 때 `Promise`를 사용하는 것이다.
 
 ```js
 const FindAllUser = async () => {
-  const find_users = `SELECT * FROM users`;
-  
-  const users = await DBClient(find_users); // Promise가 결과값을 이행(Fulfilled) 혹은 거절(Rejected) 될 때까지, 다음 명령줄을 실행하지 않고, 다른 작업을 수행함.
-  
-  console.log(users);
+  const find_users = `SELECT * FROM users`
+
+  const users = await DBClient(find_users) // Promise가 결과값을 이행(Fulfilled) 혹은 거절(Rejected) 될 때까지, 다음 명령줄을 실행하지 않고, 다른 작업을 수행함.
+
+  console.log(users)
 }
 ```
 
@@ -139,12 +142,15 @@ const FindAllUser = async () => {
 이러한 방식으로 외부 API 요청을 통해 자바스크립트로 할 수 없는 기능의 결과만을 이벤트 루프를 통해 제어하고, 비동기 함수가 외부에서 실행되는 동안, 다른 작업을 수행할 수 있게 된다. 이러한 방식을 **Non-Blocking I/O**라고 한다.
 
 # 정리
+
 다음의 3가지만 기억하자.
+
 - 자바스크립트는 메인 스레드(이벤트 루프) 하나로만 구성되어 있으나, 외부 API는 멀티 스레드 환경에서 실행되므로, 사실상 멀티 스레드 기능을 한다고 볼 수 있다.
 - 이벤트 루프를 통해 외부 API의 결과를 제어하며, 그 결과는 콜스택이 비어있을 때 실행이 된다. 즉 실행 시간이 반드시 보장되지 않는다.
 - `Promise`를 통해 API 결과에 대한 순서를 제어할 수 있으며, `Promise` 결과가 반환될 때까지 다른 작업을 수행할 수 있으므로 성능을 크게 끌어올릴 수 있었다.(Non-Blocking I/O)
 
 # 참고글
+
 - [MDN - Event Loop](https://developer.mozilla.org/ko/docs/Web/JavaScript/Event_loop)
 - [Blocking/Non-Blocking, Sync/Async](https://joooing.tistory.com/entry/%EB%8F%99%EA%B8%B0%EB%B9%84%EB%8F%99%EA%B8%B0-%EB%B8%94%EB%A1%9C%ED%82%B9%EB%85%BC%EB%B8%94%EB%A1%9C%ED%82%B9)
 - [NodeJS 는 Single Thread 일까? Multi Thread 일까?](https://haeunyah.tistory.com/81)
